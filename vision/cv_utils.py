@@ -12,6 +12,7 @@ from . import args
 verbose = args['verbose']
 display = args['display']
 camera_file = args['camera']
+camera_angle = args['angle']
 
 # Points comprising 3D model of target
 full_model_points = np.array([
@@ -105,6 +106,10 @@ def process_image(im, goal, blobs):
             pass
 
     return np.rad2deg(robot_angle), np.rad2deg(target_angle), x_distance, y_distance, distance, centroid
+
+
+def get_angle_off(im, blob_rect):
+    return (camera_angle * (((blob_rect[0] + blob_rect[3]) / 2) - (im.shape[1] / 2))) / im.shape[1]
 
 
 def filter_points_to_box(real_points, box_points, area, offset=0):

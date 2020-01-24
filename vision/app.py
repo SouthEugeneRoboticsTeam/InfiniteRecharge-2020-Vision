@@ -66,12 +66,6 @@ class Vision:
     def do_image(self, im):
         blobs, mask = cv_utils.get_blobs(im, self.settings['lower'], self.settings['upper'])
 
-        if not self.locked:
-            self.tracker.deregister_all()
-            return im, mask
-
-        found_blob = False
-
         # Create array of contour areas
         bounding_rects = [cv2.boundingRect(blob) for blob in blobs]
 
@@ -79,8 +73,6 @@ class Vision:
         sorted_blobs = sorted(zip(bounding_rects, blobs), key=lambda x: x[0], reverse=True)
 
         goals = []
-        prev_target = None
-        prev_blob = None
         for bounding_rect, blob in sorted_blobs:
             if blob is not None and mask is not None:
                 x, y, w, h = bounding_rect
@@ -99,68 +91,26 @@ class Vision:
 
                 if self.settings['min_area'] <= area <= self.settings['max_area'] and self.settings['min_full'] <= full <= self.settings['max_full']:
                     if self.verbose:
-                        print('[Goal] x: %d, y: %d, w: %d, h: %d, area: %d, full: %f, angle: %f' % (x, y, width, height, area, full, target[2]))
+                        print('[ball] x: %d, y: %d, w: %d, h: %d, area: %d, full: %f, angle: %f' % (x, y, width, height, area, full, target[2]))
 
                     if self.display:
-                        # Draw image details
-                        im = cv_utils.draw_images(im, target, box)
+                        im = cv2.drawContours(im, blob, -1, (0, 255, 255), 1)
 
-                    if prev_target is not None:
-                        sum = abs(prev_target[2]) - abs(target[2])
-
-                        if sum < 0:
-                            goals.append(((prev_target, target), (prev_blob, blob)))
-
-                    prev_target = target
-                    prev_blob = blob
+                    goals.append((blob, area))
 
         if len(goals) > 0:
-            goal_centers = None
+            goal = max(goals, key=lambda x: x[1])[0]
+            goal_rect = cv2.boundingRect(goal)
+            if self.display:
+                cv2.circle(im, (int(goal_rect[0] + goal_rect[2] / 2), int(goal_rect[1] + goal_rect[3] / 2)), 10, (0, 255, 0))
 
-            try:
-                goal_centers = [cv_utils.process_image(im, goal[0], goal[1]) for goal in goals]
-            except:
-                pass
+            x_ang_off = cv_utils.get_angle_off(im, goal_rect)
 
-            if goal_centers is None:
-                return im, mask
+            print(x_ang_off)
+            # put('x_ang_off', x_ang_off)
 
-            possible_goals = sorted(zip(goal_centers, goals), key=lambda x: abs(x[0][0] + x[0][1]))
-
-            objects = self.tracker.update([centers[5] for centers, _ in possible_goals])
-
-            centers = None
-            goal = None
-
-            if self.lock_id is None:
-                probable_goal = possible_goals[0]
-
-                centers, goal = probable_goal
-                for index in objects:
-                    if centers[5] == objects[index]:
-                        self.lock_id = index
-                        break
-            else:
-                try:
-                    centers, goal = next(filter(lambda goal: goal[0][5] == objects[self.lock_id], possible_goals))
-                except Exception:
-                    print('Exception while finding goal with lock id')
-
-            if centers is not None:
-                robot_angle, target_angle, x_distance, y_distance, distance, _ = centers
-
-                put('distance', distance)
-                put('x_distance', x_distance)
-                put('y_distance', y_distance)
-                put('robot_angle', robot_angle)
-                put('target_angle', target_angle)
-
-                found_blob = True
-
-        put('found', found_blob)
-
-        # Send the data to NetworkTables
-        flush()
+            # Send the data to NetworkTables
+            # flush()
 
         return im, mask
 
