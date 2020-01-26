@@ -102,7 +102,7 @@ class Vision:
             goal = max(goals, key=lambda x: x[1])[0]
             goal_rect = cv2.boundingRect(goal)
             if self.display:
-                cv2.circle(im, (int(goal_rect[0] + goal_rect[2] / 2), int(goal_rect[1] + goal_rect[3] / 2)), 10, (0, 255, 0))
+                cv2.circle(im, (int(goal_rect[0] + (goal_rect[2] / 2)), int(goal_rect[1] + (goal_rect[3] / 2))), 10, (0, 255, 0))
 
             x_ang_off = cv_utils.get_angle_off(im, goal_rect)
 
