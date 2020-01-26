@@ -109,7 +109,6 @@ def process_image(im, goal, blobs):
 
 
 def get_angle_off(im, blob_rect):
-    cv2.circle(im, (int(blob_rect[0] + (blob_rect[2] / 2)), 0), 10, (0, 255, 0))
     return camera_angle * (blob_rect[0] + (blob_rect[2] / 2) - im.shape[1] / 2) / im.shape[1]
 
 
