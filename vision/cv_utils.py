@@ -187,7 +187,7 @@ def get_all(im):
 
 def draw_offset(im, offset_x, offset_y, point, size, color):
     font = cv2.FONT_HERSHEY_SIMPLEX
-    offset_string = f'( + {offset_x}, {offset_y} + )'
+    offset_string = f'({offset_x}, {offset_y})'
     cv2.putText(im, offset_string, point, font, size, color)
 
 
