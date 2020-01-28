@@ -32,6 +32,6 @@ def get_args():
                         type=int, help='upper color threshold in HSV')
     parser.add_argument('-tn', '--tuning', action='store_true', help='open in tuning mode')
     parser.add_argument('-v', '--verbose', action='store_true', help='for debugging, prints useful values')
-    parser.add_argument('-a', '--angle', type=int, help='the angle of the camera')
+    parser.add_argument('-a', '--angle', type=int, help='the angle of the camera', default=60)
 
     return vars(parser.parse_args())
