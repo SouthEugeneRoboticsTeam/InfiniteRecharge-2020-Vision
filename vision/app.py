@@ -106,8 +106,8 @@ class Vision:
 
             x_ang_off = cv_utils.get_angle_off(im, goal_rect)
 
-            print(x_ang_off)
-            put('x_ang_off', x_ang_off)
+            # print(x_ang_off)
+            put('xAngOff', x_ang_off)
 
             # Send the data to NetworkTables
             flush()
