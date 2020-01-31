@@ -9,7 +9,7 @@ import numpy as np
 from imutils.video import WebcamVideoStream
 
 import vision.cv_utils as cv_utils
-from vision.network_utils import put, flush, table, settings_table
+from vision.network_utils import put, flush, table, settings_table, get
 from vision.centroid_tracker import CentroidTracker
 from . import args
 
@@ -166,38 +166,39 @@ class Vision:
         im = np.zeros(shape=(360, 640, 3), dtype=np.uint8)
 
         while True:
-            bgr = camera.read()
+            if get('vision'):
+                bgr = camera.read()
 
-            if bgr is not None:
-                im = cv2.cvtColor(cv2.resize(bgr, (640, 360), 0, 0), cv2.COLOR_BGR2HSV)
-                im, mask = self.do_image(im)
+                if bgr is not None:
+                    im = cv2.cvtColor(cv2.resize(bgr, (640, 360), 0, 0), cv2.COLOR_BGR2HSV)
+                    im, mask = self.do_image(im)
 
-                if self.display:
-                    if im is not None:
-                        cv2.imshow('Original', cv2.cvtColor(im, cv2.COLOR_HSV2BGR))
-                    if mask is not None:
-                        cv2.imshow('Mask', mask)
+                    if self.display:
+                        if im is not None:
+                            cv2.imshow('Original', cv2.cvtColor(im, cv2.COLOR_HSV2BGR))
+                        if mask is not None:
+                            cv2.imshow('Mask', mask)
 
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-            else:
-                if timeout == 0:
-                    timeout = time.time()
+                    if cv2.waitKey(1) & 0xFF == ord('q'):
+                        break
+                else:
+                    if timeout == 0:
+                        timeout = time.time()
 
-                if time.time() - timeout > 5.0:
-                    print('Camera search timed out!')
-                    break
+                    if time.time() - timeout > 5.0:
+                        print('Camera search timed out!')
+                        break
 
-        if self.tuning:
-            setting_names = ['Lower H', 'Lower S', 'Lower V', 'Upper H', 'Upper S', 'Upper V']
+            if self.tuning:
+                setting_names = ['Lower H', 'Lower S', 'Lower V', 'Upper H', 'Upper S', 'Upper V']
 
-            if not os.path.exists('settings'):
-                os.makedirs('settings')
+                if not os.path.exists('settings'):
+                    os.makedirs('settings')
 
-            with open('settings/save-{}.thr'.format(round(time.time() * 1000)), 'w') as thresh_file:
-                values = enumerate(self.settings['lower'].tolist() + self.settings['upper'].tolist())
-                thresh_file.writelines(['{}: {}\n'.format(setting_names[num], value[0])
-                                        for num, value in values])
+                with open('settings/save-{}.thr'.format(round(time.time() * 1000)), 'w') as thresh_file:
+                    values = enumerate(self.settings['lower'].tolist() + self.settings['upper'].tolist())
+                    thresh_file.writelines(['{}: {}\n'.format(setting_names[num], value[0])
+                                            for num, value in values])
 
         camera.stop()
         cv2.destroyAllWindows()
