@@ -21,7 +21,7 @@ nt.setUpdateRate(0.1)
 # Uncomment the following line to use a local NetworkTables instance (e.g. OutlineViewer)
 # nt.startClient('127.0.0.1')
 
-table = nt.getTable('Vision').getSubTable(args['name'])
+table = nt.getTable('Vision')#.getSubTable(args['name'])
 settings_table = table.getSubTable('settings')
 
 
