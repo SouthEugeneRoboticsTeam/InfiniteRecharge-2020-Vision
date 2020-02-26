@@ -96,11 +96,11 @@ class Vision:
                     if self.display:
                         im = cv2.drawContours(im, blob, -1, (0, 255, 255), 1)
 
-                    goals.append((blob, area))
+                    goals.append((blob, area, cv2.boundingRect(blob)))
 
         if len(goals) > 0:
-            goal = max(goals, key=lambda x: x[1])[0]
-            goal_rect = cv2.boundingRect(goal)
+            # TODO: tune the 5000                                                                             \/
+            goal, _, goal_rect = max(goals, key=lambda x: x[1] - cv_utils.distance_from_center_x(im, x[2]) * 5000)
             if self.display:
                 cv2.circle(im, (int(goal_rect[0] + (goal_rect[2] / 2)), int(goal_rect[1] + (goal_rect[3] / 2))), 10, (0, 255, 0))
 

@@ -108,6 +108,10 @@ def process_image(im, goal, blobs):
     return np.rad2deg(robot_angle), np.rad2deg(target_angle), x_distance, y_distance, distance, centroid
 
 
+def distance_from_center_x(im, blob_rect):
+    return abs(blob_rect[0] + (blob_rect[2] / 2) - (im.shape[1] / 2)) / im.shape[1]
+
+
 def get_angle_off(im, blob_rect):
     return camera_angle * (blob_rect[0] + (blob_rect[2] / 2) - im.shape[1] / 2) / im.shape[1]
 
